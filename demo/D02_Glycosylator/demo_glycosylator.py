@@ -1,6 +1,6 @@
 #!usr/bin/env python 
- 
-  
+
+
 """ 
 demo_glycosylator.py
 
@@ -35,43 +35,43 @@ import glycosylator as gl
 import prody as pd
 import os
 
-
 ################################################################################
 # 1. Create a glycosylator
-myGlycosylator = gl.Glycosylator(os.path.join(gl.GLYCOSYLATOR_PATH, 'support/toppar_charmm/carbohydrates.rtf'), os.path.join(gl.GLYCOSYLATOR_PATH, 'support/toppar_charmm/carbohydrates.prm'))
+myGlycosylator = gl.Glycosylator(os.path.join(gl.GLYCOSYLATOR_PATH, 'support/toppar_charmm/carbohydrates.rtf'),
+                                 os.path.join(gl.GLYCOSYLATOR_PATH, 'support/toppar_charmm/carbohydrates.prm'))
 # 2. Additional topology files (in this case for building glycans ab initio [DUMMY pathc])
 myGlycosylator.builder.Topology.read_topology(os.path.join(gl.GLYCOSYLATOR_PATH, 'support/topology/DUMMY.top'))
 # 3. Load glycan connectivity tree library
 myGlycosylator.read_connectivity_topology(os.path.join(gl.GLYCOSYLATOR_PATH, 'support/topology/mannose.top'))
 
-
 ################################################################################
 # 4. Identify glycan in mannose.top
 myMan9 = gl.Molecule('mannose9')
-myMan9.read_molecule_from_PDB(os.path.join(gl.GLYCOSYLATOR_PATH, 'support/examples/man9.pdb'), update_bonds = True)
+myMan9.read_molecule_from_PDB(os.path.join(gl.GLYCOSYLATOR_PATH, 'support/examples/man9.pdb'), update_bonds=True)
 myGlycosylator.assign_patches(myMan9)
-print "Identified glycan: ", myGlycosylator.identify_glycan(myMan9)
+print("Identified glycan: " + myGlycosylator.identify_glycan(myMan9))
 
 ################################################################################
 # 5. Trim man9 down to man6
 connect_tree = myGlycosylator.build_connectivity_tree(myMan9.rootRes, myMan9.interresidue_connectivity)
-man6, bonds6  = myGlycosylator.glycosylate('MAN6_1;3,2', template_glycan_tree = connect_tree, template_glycan = myMan9.atom_group)
+man6, bonds6 = myGlycosylator.glycosylate('MAN6_1;3,2', template_glycan_tree=connect_tree,
+                                          template_glycan=myMan9.atom_group)
 myMan6 = gl.Molecule('mannose6')
-myMan6.set_AtomGroup(man6, bonds = bonds6, update_bonds = False)
-#Update angles and dihedrals based on bonds
-myMan6.update_connectivity(update_bonds = False)
+myMan6.set_AtomGroup(man6, bonds=bonds6, update_bonds=False)
+# Update angles and dihedrals based on bonds
+myMan6.update_connectivity(update_bonds=False)
 myGlycosylator.assign_patches(myMan6)
-print "New glycan: ", myGlycosylator.identify_glycan(myMan6)
+print("New glycan: " + myGlycosylator.identify_glycan(myMan6))
 myMan6.writePDB('man6.pdb')
 
-
-#Atom type and initialize from AtomGroup
+# Atom type and initialize from AtomGroup
 atom_type = myGlycosylator.assign_atom_type(myMan6)
 myMan6.set_atom_type(atom_type)
 
-#Extend man8 from man6
+# Extend man8 from man6
 connect_tree = myGlycosylator.build_connectivity_tree(myMan6.rootRes, myMan6.interresidue_connectivity)
-man8,bonds8 = myGlycosylator.glycosylate('MAN8_2;4,2', template_glycan_tree = connect_tree, template_glycan = myMan6.atom_group)
+man8, bonds8 = myGlycosylator.glycosylate('MAN8_2;4,2', template_glycan_tree=connect_tree,
+                                          template_glycan=myMan6.atom_group)
 pd.writePDB('man8_1.pdb', man8)
 
 ################################################################################
